@@ -43,7 +43,26 @@ class TableManager:
     def display_table_details(self, table_idx):
         try:
             table = self.tables[table_idx]
-            table.display_table()
+            print(f"\n========================================")
+            print(f"Table: {table.title}\n")
+
+            # Calculate maximum length for each column
+            max_lengths = [max(len(str(row[i])) for row in table.data) for i in range(len(table.column_headings))]
+
+            # Print column headings
+            heading_row = " | ".join(column.center(max_lengths[i]) for i, column in enumerate(table.column_headings))
+            print(heading_row)
+
+            # Print separator line
+            separator = " | ".join("-" * max_lengths[i] for i in range(len(table.column_headings)))
+            print(separator)
+
+            # Print table data
+            for row in table.data:
+                data_row = " | ".join(str(cell).center(max_lengths[i]) for i, cell in enumerate(row))
+                print(data_row)
+
+            print(f"========================================")
         except IndexError:
             print("Invalid table index.")
 
@@ -67,16 +86,14 @@ class TableManager:
     def load_tables_from_database(self):
         self.tables.clear()
         tables_data = self.database.fetch_from_database()
-        for data in tables_data:
-            title, num_rows, num_cols, column_headings_str, data_str = data
+        for data_tuple in tables_data:
             try:
-                if column_headings_str.strip() == "" or data_str.strip() == "":
-                    raise ValueError("Empty JSON data")
-
-                # Log or print the JSON strings for debugging
-                print(f"Column Headings JSON: {column_headings_str}")
-                print(f"Data JSON: {data_str}")
-
+                title = data_tuple[0]
+                num_rows = data_tuple[1]
+                num_cols = data_tuple[2]
+                column_headings_str = data_tuple[3]
+                data_str = data_tuple[4]
+            
                 column_headings = json.loads(column_headings_str)
                 data = json.loads(data_str)
 
@@ -107,17 +124,32 @@ class TableManager:
         except Exception as e:
             print(f"An error occurred while saving table '{table.title}' to database: {e}")
 
+    def find_longest_table_data_length(self, table):
+        max_lengths = [len(str(column)) for column in table.column_headings]
+
+        for row in table.data:
+            for i, cell in enumerate(row):
+                max_lengths[i] = max(max_lengths[i], len(str(cell)))
+
+        return max_lengths
     def export_table_to_csv(self, table_idx):
         try:
             table = self.tables[table_idx]
+            max_data_lengths = self.find_longest_table_data_length(table)
             filename = f"{table.title.replace(' ', '_')}.csv"
             with open(filename, mode='w', newline='') as file:
                 writer = csv.writer(file, delimiter='|')
-                writer.writerow(table.column_headings)
-                writer.writerow(['-' * 15 for _ in range(len(table.column_headings))])
-
+                
+                # Write headers
+                formatted_headers = [table.column_headings[i].ljust(max_data_lengths[i]) for i in range(len(table.column_headings))]
+                writer.writerow(formatted_headers)
+                separator = ['=' * max_length for max_length in max_data_lengths]
+                writer.writerow(separator)
+                # Write data rows
                 for row in table.data:
-                    writer.writerow(row)
+                    formatted_row = [str(cell).ljust(max_data_lengths[i]) for i, cell in enumerate(row)]
+                    writer.writerow(formatted_row)
+                
             print(f"Table '{table.title}' has been exported to {filename}")
         except IndexError:
             print("Invalid table index.")
