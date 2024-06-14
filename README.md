@@ -67,6 +67,7 @@ Copy code
 ## Example
 
 Here’s an example of what you can do with the Table Manager:
+
 0. Exit the Program
 1. Create a new table and add data to it.
 2. Edit a table to change its title or update its data.
