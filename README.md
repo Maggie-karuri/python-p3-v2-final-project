@@ -67,7 +67,9 @@ Copy code
 ## Example
 
 Here’s an example of what you can do with the Table Manager:
+0. Exit the Program
 1. Create a new table and add data to it.
-2. Display all tables to see what you’ve created.
-3. Edit a table to change its title or update its data.
-4. Export a table to a CSV file for use in other programs.
+2. Edit a table to change its title or update its data.
+3. Delete an existing table from database.
+4. Display all tables to see what you’ve created.
+5. Export a table to a CSV file for use in other programs.
