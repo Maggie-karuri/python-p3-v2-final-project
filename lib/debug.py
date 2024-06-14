@@ -14,7 +14,7 @@ def debug_database():
         for row in rows:
             print(row)
         
-        # Example: Modify database data
+        #Example: Modify database data
         #CURSOR.execute("UPDATE your_table SET column = value WHERE condition")
         #CONN.commit()
         

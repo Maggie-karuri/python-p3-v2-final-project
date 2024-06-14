@@ -1,50 +1,63 @@
-# lib/cli.py
 from table_manager import TableManager
-from helpers import exit_program
 
 def main():
-    table_manager = TableManager()
-    table_manager.load_tables_from_database()  # Load tables from database on application start
+    manager = TableManager()
     while True:
-        menu()
+        print("\nPlease select an option:")
+        print("0. Exit the program")
+        print("1. Create a new table")
+        print("2. Edit an existing table")
+        print("3. Delete an existing table")
+        print("4. Display tables")
+        print("5. Export a table to CSV")
+        
         choice = input("> ")
+
         if choice == "0":
-            exit_program()
+            break
         elif choice == "1":
-            table_manager.create_table()
+            manager.create_table()
         elif choice == "2":
-            edit_table_menu(table_manager)
+            table_idx = manager.select_table("edit")
+            if table_idx is not None:
+                open_and_edit_table(manager, table_idx)
         elif choice == "3":
-            delete_table_menu(table_manager)
+            table_idx = manager.select_table("delete")
+            if table_idx is not None:
+                manager.delete_table(table_idx)
         elif choice == "4":
-            table_manager.display_tables()
+            manager.display_tables()  # Only display tables here
+            table_idx = input("Enter the index of the table to view: ")
+            if table_idx.isdigit():
+                table_idx = int(table_idx) - 1
+                if 0 <= table_idx < len(manager.tables):
+                    open_and_edit_table(manager, table_idx)
+                else:
+                    print("Invalid table index.")
+            else:
+                print("Invalid input. Please enter a valid table index.")
+        elif choice == "5":
+            table_idx = manager.select_table("export")
+            if table_idx is not None:
+                manager.export_table_to_csv(table_idx)
         else:
-            print("Invalid choice")
+            print("Invalid choice. Please select a valid option.")
 
-def menu():
-    print("Please select an option:")
-    print("0. Exit the program")
-    print("1. Create a new table")
-    print("2. Edit an existing table")
-    print("3. Delete an existing table")
-    print("4. Display all tables")
-    # Add more options as needed
+def open_and_edit_table(manager, table_idx):
+    while True:
+        manager.display_table_details(table_idx)
+        print("\nSelect an option:")
+        print("1. Edit this table")
+        print("2. Return to main menu")
 
-def edit_table_menu(table_manager):
-    table_manager.display_tables()
-    try:
-        table_idx = int(input("Enter the index of the table to edit: ")) - 1
-        table_manager.edit_table(table_idx)
-    except ValueError:
-        print("Invalid input. Please enter a valid table index.")
+        choice = input("> ")
 
-def delete_table_menu(table_manager):
-    table_manager.display_tables()
-    try:
-        table_idx = int(input("Enter the index of the table to delete: ")) - 1
-        table_manager.delete_table(table_idx)
-    except ValueError:
-        print("Invalid input. Please enter a valid table index.")
+        if choice == "1":
+            manager.edit_table(table_idx)
+        elif choice == "2":
+            break
+        else:
+            print("Invalid choice. Please select a valid option.")
 
 if __name__ == "__main__":
     main()

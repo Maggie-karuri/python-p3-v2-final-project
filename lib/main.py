@@ -7,13 +7,12 @@ def main():
     table_validator = TableValidator('company')
     
     # Example usage
-    table_name = 'example_table'
-    
+    table_name = 'table'
     # Validate if table exists before saving
     if table_validator.validate_table_exists(table_name):
         # Perform save operation
         table = Table()  # Assuming Table class is defined elsewhere
-        table.title = 'Example Table'
+        table.title = 'Table'
         table.num_rows = 3
         table.num_cols = 2
         table.column_headings = ['Column 1', 'Column 2']
