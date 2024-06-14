@@ -6,14 +6,19 @@ from database import Database
 class TableManager:
     def __init__(self):
         self.tables = []
-        self.database = Database("Table_db")
+        self.database = Database("Table_db.db")
         self.load_tables_from_database()
 
     def create_table(self):
         table = Table()
         table.prompt_table_info()
         self.tables.append(table)
-        self.save_to_database(table)
+        self.database.save_to_database(table)
+    def edit_table(self):
+        table_idx = self.select_table("edit")
+        if table_idx is not None:
+            self.display_table_details(table_idx)
+            self.database.save_to_database(self.tables[table_idx]) 
 
     def display_tables(self):
         if not self.tables:
@@ -135,19 +140,22 @@ class TableManager:
     def export_table_to_csv(self, table_idx):
         try:
             table = self.tables[table_idx]
-            max_data_lengths = self.find_longest_table_data_length(table)
             filename = f"{table.title.replace(' ', '_')}.csv"
             with open(filename, mode='w', newline='') as file:
                 writer = csv.writer(file, delimiter='|')
                 
+                # Find the max length of data for alignment
+                max_data_length = max(len(str(cell)) for row in table.data for cell in row)
+                max_header_length = max(len(header) for header in table.column_headings)
+                column_width = max(max_data_length, max_header_length)
+
                 # Write headers
-                formatted_headers = [table.column_headings[i].ljust(max_data_lengths[i]) for i in range(len(table.column_headings))]
-                writer.writerow(formatted_headers)
-                separator = ['=' * max_length for max_length in max_data_lengths]
-                writer.writerow(separator)
+                writer.writerow([header.ljust(column_width) for header in table.column_headings])
+                writer.writerow(['=' * column_width] * len(table.column_headings))
+                
                 # Write data rows
                 for row in table.data:
-                    formatted_row = [str(cell).ljust(max_data_lengths[i]) for i, cell in enumerate(row)]
+                    formatted_row = [str(cell).ljust(column_width) for cell in row]
                     writer.writerow(formatted_row)
                 
             print(f"Table '{table.title}' has been exported to {filename}")
