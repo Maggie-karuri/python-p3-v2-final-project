@@ -1,6 +1,7 @@
 # Table Manager Application
 
-This project is a simple Python application that helps you manage tables, add data, edit them, and even export them to CSV files. It's built using Python's basic features and stores data in a local SQLite database.
+- This project is a simple Python application that helps you manage tables, add data, edit them, and even export them to CSV files. It's built using Python's basic features and stores data in a local SQLite database.
+ - Ideal for scenarios where users need to input, manage, and analyze structured data efficiently.
 
 ## Features
 
